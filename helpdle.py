@@ -14,7 +14,7 @@ def read_dictionary():
 def colorize_word(word, required_letters):
     colored_word = ""
     for i, letter in enumerate(word):
-        if str(i + 1) in required_letters:
+        if int(i + 1) in required_letters.keys(): # check if we had flagged the position
             if word[i] == required_letters[str(i + 1)]:
                 colored_word += Fore.GREEN + letter + Style.RESET_ALL
             else:
@@ -23,29 +23,37 @@ def colorize_word(word, required_letters):
             colored_word += letter
     return colored_word
 
-def search_words_by_criteria(words, required_letters, exclude_letters):
+'''
+loop through lettters in word
+if letter is in required letters highlight yellow
+if letter is in required letters and at specified position highlight green
+'''
+
+def search_words_by_criteria(words, required_letters, exclude_letters, known_positions):
     # Filter words based on the criteria
     filtered_words = []
 
     for word in words:
         word_lower = word.lower()
         match = True
-        for position, letter in required_letters.items():
-            if position.isdigit():
-                # Check exact position
-                if word_lower[int(position) - 1] != letter:
+        for position, letter in known_positions.items():
+            # Check exact position
+            if word_lower[int(position) - 1] != letter:
+                match = False
+                break
+        
+        if match:
+            for letter in required_letters:
+                if letter not in word:
                     match = False
                     break
-            else:
-                # Check if letter exists in any position
-                if position not in word_lower:
-                    match = False
-                    break
+
         if match:
             for exclude_letter in exclude_letters:
                 if exclude_letter in word_lower:
                     match = False
                     break
+        
         if match:
             filtered_words.append(word_lower)
 
@@ -56,7 +64,8 @@ def main():
     filtered_words = []
 
     while True:
-        required_letters = {}
+        required_letters = []
+        known_positions = {}
         exclude_letters = []
         
         while True:
@@ -64,12 +73,12 @@ def main():
             letter = input("Enter a required letter (or press Enter to finish): ")
             if not letter:
                 break
+            required_letters.append(letter.lower())
+
             position = input("Enter its position (1 to 5, or leave blank if unknown): ")
             if position:
-                required_letters[position] = letter.lower()
-            else:
-                required_letters[letter] = None  # Use None to indicate position is not known
-        
+                known_positions[position] = letter.lower()
+                
         if not required_letters:
             break
 
@@ -80,13 +89,14 @@ def main():
             for el in exclude_letter_input.split():
                 exclude_letters.append(el.lower())
 
-        filtered_words = search_words_by_criteria(words if not filtered_words else filtered_words, required_letters, exclude_letters)
+        filtered_words = search_words_by_criteria(words if not filtered_words else filtered_words, required_letters, exclude_letters,known_positions)
 
         if filtered_words:
             print(f"Found {len(filtered_words)} words matching search criteria:")
             for word in filtered_words:
-                colored_word = colorize_word(word, required_letters)
-                print(colored_word)
+                #colored_word = colorize_word(word, required_letters)
+                #print(colored_word)
+                print(word)
         else:
             print(f"No words found matching the criteria.")
 
