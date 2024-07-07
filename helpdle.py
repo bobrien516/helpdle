@@ -14,16 +14,17 @@ def read_dictionary():
 
 def colorize_word(word, required_letters, known_positions):
     colored_word = ""
-    #print(f"colorizing word {word}")
-    #print(known_positions)
+    print(f"colorizing word {word}")
+    print(known_positions)
+    print(required_letters)
     for i, letter in enumerate(word):
     #    print(f"i: {i}, letter: {letter}")
     #    print(f"get: {known_positions.get(str(i+1))}")
-        if known_positions.get(str(i + 1)) and word[i] == known_positions[str(i+1)]:
-            colored_word += Fore.GREEN + letter + Style.RESET_ALL
-            break
-        elif letter in required_letters:
-            colored_word += Fore.YELLOW + letter + Style.RESET_ALL
+        if letter in required_letters:
+            if known_positions.get(str(i + 1)) and word[i] == known_positions[str(i+1)]:
+                colored_word += Fore.GREEN + letter + Style.RESET_ALL
+            else:
+                colored_word += Fore.YELLOW + letter + Style.RESET_ALL
         else:
             colored_word += letter
     return colored_word
@@ -69,21 +70,30 @@ def main():
     filtered_words = []
 
     while True:
-        required_letters = []
+        required_letters = set()
         known_positions = {}
-        exclude_letters = []
+        exclude_letters = set()
         
         while True:
             #TODO - do not accept more than 5 required letter args
-            letter = input("Enter a required letter (or press Enter to finish): ")
-            if not letter:
-                break
-            required_letters.append(letter.lower())
+            if len(required_letters) < 5:
+                letter = input("Enter a required letter (or press Enter to finish): ")
+                if not letter:
+                    break
+                if letter.isalpha():
+                    required_letters.add(letter.lower())
+                else:
+                    print(f"invalid required letter {letter}")
 
             position = input("Enter its position (1 to 5, or leave blank if unknown): ")
             if position:
-                known_positions[position] = letter.lower()
+                try:
+                    if 1 <= int(position) <= 5:
+                        known_positions[position] = letter.lower()
+                except ValueError:
+                    print(f"invalid position {position}, must be between 1 and 5")
                 
+            #TODO support negative positions - e.g. it is known that a is not in position 1
         if not required_letters:
             break
 
@@ -92,16 +102,18 @@ def main():
             if not exclude_letter_input:
                 break
             for el in exclude_letter_input.split():
-                exclude_letters.append(el.lower())
+                exclude_letters.add(el.lower())
 
         filtered_words = search_words_by_criteria(words if not filtered_words else filtered_words, required_letters, exclude_letters,known_positions)
 
         if filtered_words:
             print(f"Found {len(filtered_words)} words matching search criteria:")
-            for word in filtered_words:
-                colored_word = colorize_word(word, required_letters,known_positions)
-                print(colored_word)
-                #print(word)
+            if len(filtered_words) < 20:
+                for word in filtered_words:
+                    print(word)
+                    colored_word = colorize_word(word, required_letters,known_positions)
+                    print(colored_word)
+            
         else:
             print(f"No words found matching the criteria.")
             sys.exit(0)
