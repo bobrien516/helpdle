@@ -4,6 +4,7 @@ import sys
 def read_dictionary():
     # Path to the system dictionary on macOS
     dictionary_path = '/usr/share/dict/words'
+    #dictionary_path = '/tmp/dict/words'
 
     # Read words from the dictionary file
     with open(dictionary_path, 'r') as file:
@@ -11,14 +12,18 @@ def read_dictionary():
 
     return words
 
-def colorize_word(word, required_letters):
+def colorize_word(word, required_letters, known_positions):
     colored_word = ""
+    #print(f"colorizing word {word}")
+    #print(known_positions)
     for i, letter in enumerate(word):
-        if int(i + 1) in required_letters.keys(): # check if we had flagged the position
-            if word[i] == required_letters[str(i + 1)]:
-                colored_word += Fore.GREEN + letter + Style.RESET_ALL
-            else:
-                colored_word += Fore.YELLOW + letter + Style.RESET_ALL
+    #    print(f"i: {i}, letter: {letter}")
+    #    print(f"get: {known_positions.get(str(i+1))}")
+        if known_positions.get(str(i + 1)) and word[i] == known_positions[str(i+1)]:
+            colored_word += Fore.GREEN + letter + Style.RESET_ALL
+            break
+        elif letter in required_letters:
+            colored_word += Fore.YELLOW + letter + Style.RESET_ALL
         else:
             colored_word += letter
     return colored_word
@@ -94,11 +99,12 @@ def main():
         if filtered_words:
             print(f"Found {len(filtered_words)} words matching search criteria:")
             for word in filtered_words:
-                #colored_word = colorize_word(word, required_letters)
-                #print(colored_word)
-                print(word)
+                colored_word = colorize_word(word, required_letters,known_positions)
+                print(colored_word)
+                #print(word)
         else:
             print(f"No words found matching the criteria.")
+            sys.exit(0)
 
 if __name__ == "__main__":
     # Initialize colorama for Windows compatibility
