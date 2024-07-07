@@ -60,6 +60,7 @@ def main():
         exclude_letters = []
         
         while True:
+            #TODO - do not accept more than 5 required letter args
             letter = input("Enter a required letter (or press Enter to finish): ")
             if not letter:
                 break
@@ -73,10 +74,11 @@ def main():
             break
 
         while True:
-            exclude_letter = input("Enter an exclude letter (or press Enter to skip): ")
-            if not exclude_letter:
+            exclude_letter_input = input("Enter one or more exclude letters separated by space (or press Enter to skip): ")
+            if not exclude_letter_input:
                 break
-            exclude_letters.append(exclude_letter.lower())
+            for el in exclude_letter_input.split():
+                exclude_letters.append(el.lower())
 
         filtered_words = search_words_by_criteria(words if not filtered_words else filtered_words, required_letters, exclude_letters)
 
