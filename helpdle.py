@@ -4,6 +4,7 @@ import sys
 
 def read_dictionary():
     # Path to the system dictionary on macOS
+    #TODO add support to detect OS and set path to dictionary 
     dictionary_path = '/usr/share/dict/words'
    
 
@@ -170,8 +171,5 @@ def main():
 
 if __name__ == "__main__":
     # Initialize colorama for Windows compatibility
-    if sys.platform.startswith('win'):
-        import colorama
-        colorama.init()
     
     main()
